@@ -90,6 +90,12 @@ parameters:
       Pass through a default timeout if your Docker build does not output
       anything for more than 10 minutes.
 
+  save-to:
+    type: string
+    default: ""
+    description: >
+      XXX save
+
 steps:
   - when:
       condition: <<parameters.lint-dockerfile>>
@@ -147,3 +153,18 @@ steps:
                 -f <<parameters.path>>/<<parameters.dockerfile>> \
                 $docker_tag_args \
                 <<parameters.docker-context>>
+  - when:
+      condition: <<parameters.save-to>>
+      steps:
+        - run:
+            name: <<parameters.step-name>>
+            no_output_timeout: << parameters.no_output_timeout >>
+            command: |
+              TAG=$(echo "<< parameters.tag >>" | cut -d, -f1)
+
+              mkdir /tmp/docker-orb-saved-image
+              docker save $TAG | gzip > /tmp/docker-orb-saved-image/<<parameters.save-to>>.gz
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - docker-orb-saved-image

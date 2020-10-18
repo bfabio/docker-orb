@@ -1,0 +1,15 @@
+description: >
+  XXX load
+
+parameters:
+  load-from:
+    type: string
+    description: Name of saved image
+
+steps:
+  - attach_workspace:
+      at: /tmp/docker-orb-saved-image
+  - run:
+      name: Docker load
+      command: |
+        docker load --input /tmp/docker-orb-saved-image/<<parameters.load-from>>.gz
