@@ -208,23 +208,23 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      # - docker/build:
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_BUILD_NUM-$CIRCLE_SHA1
-      #     attach-at: "./"
-      # - run:
-      #     name: Check for workspace
-      #     command: |
-      #       echo "Ensuring workspace was attached."
-      #       if test -f "./verify.txt"; then
-      #         echo "Success"
-      #       else
-      #         echo "Error"
-      #         pwd
-      #         ls
-      #         exit 1
-      #       fi
+      - docker/build:
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_BUILD_NUM-$CIRCLE_SHA1
+          attach-at: "./"
+      - run:
+          name: Check for workspace
+          command: |
+            echo "Ensuring workspace was attached."
+            if test -f "./verify.txt"; then
+              echo "Success"
+            else
+              echo "Error"
+              pwd
+              ls
+              exit 1
+            fi
 
 
 workflows:
@@ -299,71 +299,71 @@ workflows:
           pre-steps:
             - docker/install-docker
       # build/publish
-      # - docker/publish:
-      #     name: publish-machine
-      #     context: orb-publishing
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_BUILD_NUM-$CIRCLE_SHA1
-      #     docker-username: DOCKER_USER
-      #     docker-password: DOCKER_PASS
-      #     use-docker-credentials-store: true
-      #     pre-steps:
-      #       # Test that it's OK to invoke the commands twice
-      #       - docker/install-docker-credential-helper
-      #       - docker/configure-docker-credentials-store
-      # - docker/publish:
-      #     name: publish-docker
-      #     executor: docker/docker
-      #     context: orb-publishing
-      #     use-remote-docker: true
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_SHA1
-      #     docker-username: DOCKER_USER
-      #     docker-password: DOCKER_PASS
-      #     use-docker-credentials-store: true
-      # - docker/publish:
-      #     name: publish-docker-cache
-      #     requires:
-      #       - publish-docker
-      #     executor: docker/docker
-      #     context: orb-publishing
-      #     use-remote-docker: true
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_SHA1
-      #     cache_from: circlecipublic/docker-orb-test:$CIRCLE_SHA1
-      #     docker-username: DOCKER_USER
-      #     docker-password: DOCKER_PASS
-      #     pre-steps:
-      #       - docker/install-docker-credential-helper:
-      #           release-tag: v0.6.3
-      #       - docker/configure-docker-credentials-store:
-      #           helper-name: pass
-      # - docker/publish:
-      #     name: publish-docker-cache-not-found
-      #     executor: docker/docker
-      #     context: orb-publishing
-      #     use-remote-docker: true
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_SHA1-2
-      #     cache_from: circlecipublic/docker-orb-test:not-exists
-      #     docker-username: DOCKER_USER
-      #     docker-password: DOCKER_PASS
-      # - docker/publish:
-      #     name: publish-docker-update-description
-      #     executor: docker/docker
-      #     context: orb-publishing
-      #     use-remote-docker: true
-      #     dockerfile: test.Dockerfile
-      #     image: circlecipublic/docker-orb-test
-      #     tag: $CIRCLE_SHA1
-      #     cache_from: circlecipublic/docker-orb-test:$CIRCLE_SHA1
-      #     docker-username: DOCKER_USER
-      #     docker-password: DOCKER_PASS
-      #     update-description: true
+      - docker/publish:
+          name: publish-machine
+          context: orb-publishing
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_BUILD_NUM-$CIRCLE_SHA1
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASS
+          use-docker-credentials-store: true
+          pre-steps:
+            # Test that it's OK to invoke the commands twice
+            - docker/install-docker-credential-helper
+            - docker/configure-docker-credentials-store
+      - docker/publish:
+          name: publish-docker
+          executor: docker/docker
+          context: orb-publishing
+          use-remote-docker: true
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_SHA1
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASS
+          use-docker-credentials-store: true
+      - docker/publish:
+          name: publish-docker-cache
+          requires:
+            - publish-docker
+          executor: docker/docker
+          context: orb-publishing
+          use-remote-docker: true
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_SHA1
+          cache_from: bfabio/docker-orb-test:$CIRCLE_SHA1
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASS
+          pre-steps:
+            - docker/install-docker-credential-helper:
+                release-tag: v0.6.3
+            - docker/configure-docker-credentials-store:
+                helper-name: pass
+      - docker/publish:
+          name: publish-docker-cache-not-found
+          executor: docker/docker
+          context: orb-publishing
+          use-remote-docker: true
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_SHA1-2
+          cache_from: bfabio/docker-orb-test:not-exists
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASS
+      - docker/publish:
+          name: publish-docker-update-description
+          executor: docker/docker
+          context: orb-publishing
+          use-remote-docker: true
+          dockerfile: test.Dockerfile
+          image: bfabio/docker-orb-test
+          tag: $CIRCLE_SHA1
+          cache_from: bfabio/docker-orb-test:$CIRCLE_SHA1
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASS
+          update-description: true
       - test-pull
       # alpine
       - test:
